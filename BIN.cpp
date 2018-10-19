@@ -28,29 +28,18 @@ int main(int argc, char *argv[]){
 	
 	String str;
 	Instruction i;
-
+	//TODO: figure out how to use instruction.cpp to get the string
 	str = myBinParser->getNextString();
 	while(str != UNDEFIND){
-		i = myBinParser -> getDecoding;
+		cout << str;
+		cout <<i.getDecoding;
 		//
 
 
 
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	delete myBinParser;
 
 	return 0;
 }
