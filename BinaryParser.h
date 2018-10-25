@@ -42,6 +42,8 @@ class BinaryParser{
 	OpcodeTable opcodes;
 	
 	
+	istringstream sa;
+
 	string decode(string s, Instruction i, Opcode o);//check if the opcode matches with any opcode in the opcodeTable, and determine which type the opcode stands for
 	string decodeRType(string s, Instruction i, Opcode o);
 	string decodeIType(string s, Instruction i, Opcode o);

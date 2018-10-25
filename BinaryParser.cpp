@@ -12,18 +12,21 @@ BinaryParser::BinaryParser(string fileName){
 	else{
 		string line;
 		while(getline(in, line)){
+
 			if(isValidBinaryEncoding(line) == false){
 				myFormatCorrect = false;
 				break;
 			}
 				
 			Opcode o = opcodes.determineOpcode(line);
+
 			if(o == UNDEFINED){
 				myFormatCorrect = false;
 				break;
 			}//check for invalid opcode
-			string asm = decode(line, i, o);
-			i.setAssembly(asm);
+
+			string assembly = decode(line, i, o);
+			i.setAssembly(assembly);
 			myInstructions.push_back(i);
 		}
 	}
@@ -78,13 +81,14 @@ BinaryParser::BinaryParser(string fileName){
 	  int regLength = 5;
 	  int immStartIndex = 21;
 	  stringstream ss;
-	  isstringstream sa;
+	 // istringstream sa;
 	  Opcode op = opcodes.determineOpcode(s);
 	  string rsField = s.substr(rsStartIndex, regLength);
 	  string rtField = s.substr(rtStartIndex, regLength);
 	  string rdField = s.substr(rdStartIndex, regLength );
 	  string immediate = s.substr(immStartIndex, regLength);
-	  sa(immediate) >> imm;
+	  istringstream sa(immediate);
+	  sa >> imm;
 	
 	  rs = registers.getNum(rsField);
 	  rt = registers.getNum(rtField);
@@ -99,19 +103,19 @@ BinaryParser::BinaryParser(string fileName){
 
 	string BinaryParser::decodeIType(string s,Instruction i, Opcode o){
 	  int rs, rt, rd, imm =  -1;
-	  int rsStartInd = 6;
-	  int rtStartInd = 11;
-	  int immStartInd = 16;
+	  int rsStartIndex = 6 ;
+	  int rtStartIndex = 11;
+	  int immStartIndex = 16;
 	  int regLength = 5;
 	  int immLength = 16;
 	  stringstream ss;
-	  isstringstream sa;
 	  Opcode op = opcodes.determineOpcode(s);
 	  
 	  string rsField = s.substr(rsStartIndex, regLength);
 	  string rtField = s.substr(rtStartIndex, regLength);
 	  string immediate = s.substr(immStartIndex, immLength);	
-	  sa(immediate) >> imm;
+	  istringstream sa(immediate);
+	  sa >> imm;
 	  
 	  rs = registers.getNum(rsField);
 	  rt = registers.getNum(rtField);
@@ -125,13 +129,13 @@ BinaryParser::BinaryParser(string fileName){
 	string BinaryParser::decodeJType(string s,Instruction i, Opcode o){
 	  int immStartInd = 6;
 	  int immLength = 26;
-          int imm = rs = rt = rd = -1;
+          int imm,rs,rt,rd = -1;
 	  stringstream ss;
-	  isstringstream sa;
 	  Opcode op = opcodes.determineOpcode(s);
 	  
 	  string immediate = s.substr(6, immLength);
-	  sa(immediate) >> imm;
+	  istringstream sa(immediate);
+          sa >> imm;
 	  imm = imm/4;//shift the binary encoding to offset the target address 
 	  imm = convertBinToDec(imm);
 	  i.setValues(op, rs, rt, rd, imm);
