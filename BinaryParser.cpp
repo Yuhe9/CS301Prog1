@@ -60,31 +60,54 @@ BinaryParser::BinaryParser(string fileName){
 	void BinaryParser::decodeRType(string s, Instruction i, Opcode o){
 	  int rs, rt, rd, imm;
 	  int rsStartIndex = 6;
-	  int rtStartIndex = 10;
-	  int rdStartIndex = 15;
-	  int immStartIndex = 20;
-	  int immEndIndex = 24;
+	  int rtStartIndex = 11;
+	  int rdStartIndex = 16;
+	  int immStartIndex = 21;
+	  int immEndIndex = 25;
 	  Opcode op = opcodes.getOpcodeField(o);
 	  String rsField = s.substring(rsStartIndex, rdStartIndex - 1);
 	  String rtField = s.substring(rtStartIndex, rdStartIndex - 1);
 	  String rdField = s.substring(rdStartIndex, immStartIndex - 1);
 	  String immediate = s.substring(immStartIndex, immEndIndex);
-	  rs = convertBinToDec(rsField);
-	  rt = convertBinToDec(rtField);
-	  rd = convertBinToDec(rdField);
+	  rs = registers.getNum(rsField);
+	  rt = registers.getNum(rtField);
+	  rd = registers.getNum(rdField);
 	  imm = convertBinToDec(immediate); 
 	  i.setValues(op, rs, rt, rd, imm); 	
 
 	}
 
 	void BinaryParser::decodeIType(string s,Instruction i, Opcode o){
+	  int rs, rt, rd, imm;
+	  int rd = -1;
+	  int rsStartInd = 6;
+	  int rtStartInd = 11;
+	  int immStartInd = 16;
+	  Opcode op = opcodes.getOpcodeField(o);
+	  String rsField = s.substring(rsStartIndex, rdStartIndex - 1);
+	  String rtField = s.substring(rtStartIndex, immStartIndex - 1);
+	  String immediate = s.substring(immStartIndex, stringLength - 1);	
+	  rs = registers.getNum(rsField);
+	  rt = registers.getNum(rtField);
+	  imm = convertBinToDec(immediate);
+	  i.setValues(op, rs, rt, rd, imm);
+
+	}
+
+	void BinaryParser::decodeJType(string s,Instruction i, Opcode o){
+	  int immStartInd = 6;
+          int imm = rs = rt = rd = -1;
+	  Opcode op = opcodes.getOpcodeField(o);
+	  string immediate = s.substring(6, stringLength - 1);
+	  imm = convertBinToDec(immediate);
+	  imm = imm/4;//shift the binary encoding to offset the target address 
+	  i.setValues(op, rs, rt, rd, imm);
+
+	}
+	
+	string BinaryParser::createAssembly(Instruction i){
 	
 
 
 	}
-
-	}
-
-
-}
 

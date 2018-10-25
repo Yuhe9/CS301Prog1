@@ -93,6 +93,17 @@ OpcodeTable::OpcodeTable()
   myArray[LB].instType = ITYPE;
   myArray[LB].op_field = "100000";
   myArray[LB].funct_field = "";
+  
+  //BEQ
+  myArray[BEQ].name = "beq";
+  myArray[BEQ].numOps = 3;
+  myArray[BEQ].rdPos = -1;
+  myArray[BEQ].rsPos = 0;
+  myArray[BEQ].rtPos = 1;
+  myArray[BEQ].immPos = 2;
+  myArray[BEQ].instType = ITYPE;
+  myArray[BEQ].op_field = "000100";
+  myArray[BEQ].funct_field = "";
 
   //J
   myArray[J].name = "j";

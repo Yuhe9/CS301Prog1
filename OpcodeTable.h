@@ -18,6 +18,7 @@ enum Opcode {
   SLT,
   SLTI,
   LB,
+  BEQ,
   J, 
   UNDEFINED
 };

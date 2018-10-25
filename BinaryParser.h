@@ -40,10 +40,10 @@ class BinaryParser{
 	RegisterTable registers;
 	OpcodeTable opcodes;
 	
-	void decode(string line, Instruction i, Opcode o);//check if the opcode matches with any opcode in the opcodeTable, and determine which type the opcode stands for
-	void decodeRType(Instruction i);
-	void decodeIType(Instruction i);
-	void decodeJType(Instruction i);
+	void decode(string s, Instruction i, Opcode o);//check if the opcode matches with any opcode in the opcodeTable, and determine which type the opcode stands for
+	void decodeRType(string s, Instruction i, Opcode o);
+	void decodeIType(string s, Instruction i, Opcode o);
+	void decodeJType(string s, Instruction i, Opcode o);
 	int convertBinToDec(string s);
 	string createAssembly(Instruction i); 
 
