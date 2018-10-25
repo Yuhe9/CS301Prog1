@@ -91,7 +91,7 @@ BinaryParser::BinaryParser(string fileName){
 	  rt = registers.getNum(rtField);
 	  imm = convertBinToDec(immediate);
 	  i.setValues(op, rs, rt, rd, imm);
-
+	  
 	}
 
 	void BinaryParser::decodeJType(string s,Instruction i, Opcode o){
@@ -105,9 +105,24 @@ BinaryParser::BinaryParser(string fileName){
 
 	}
 	
-	string BinaryParser::createAssembly(Instruction i){
-	
+	string BinaryParser::setAssembly(Instruction i){
+	  Opcode opcode = i.getOpcode();
+          InstType type = opcodes.getInstType(opcode);
+	  string myAssembly = "";
 
+	  if(type == RTYPE)
+	    myAssembly = setAssemblyRType(i);
+	  else if(type == ITYPE)
+	    myAssembly = setAssemblyIType(i);
+	  else
+	    myAssembly = setAssemblyJType(i);
 
+	  return myAssembly;	  
+	}
+
+	string BinaryParser::setAssemblyRType(Instruction i){
+ 	stringstream ss; 
+	ss << i.getOpcode() << ", $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRD();//get the instuction name
+	return ss;
 	}
 

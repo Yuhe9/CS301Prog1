@@ -45,8 +45,10 @@ class BinaryParser{
 	void decodeIType(string s, Instruction i, Opcode o);
 	void decodeJType(string s, Instruction i, Opcode o);
 	int convertBinToDec(string s);
-	string createAssembly(Instruction i); 
-
+	string setAssembly(Instruction i); 
+	string setAssemblyRType(i);
+	string setAssemblyIType(i);
+	string setAssemblyJType(i);
 
 }
 

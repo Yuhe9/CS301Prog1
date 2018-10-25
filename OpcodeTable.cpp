@@ -135,10 +135,10 @@ Opcode determineOpcode(string str){
 // Given a 32-bits binary string encoding of an instruction, returns an Opcode
 // which reprsents a template for that instruction.
   int startInd = 0;
-  int opcodeLength = 5;
+  int opcodeEndInd = 5;
   int funcStartInd = 26;
   int funcEndInd = 31;
-  string opField = s.substr(startInd, opcodeLength);
+  string opField = s.substr(startInd, opcodeEndInd);
   string funcField = s.substr(funcStartInd, funcEndInd);
   for(int i = 0; i < (int)UNDEFINED; i++){
     if(myArray[i].op_field = opField && opField != "000000"){
