@@ -63,6 +63,7 @@ class Instruction{
   int myImmediate;
 
   string myEncoding;
+  string myAssembly;
 };
 
 #endif

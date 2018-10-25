@@ -57,4 +57,3 @@ string Instruction::getString()
   return s.str();
   
 }
-

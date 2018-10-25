@@ -23,7 +23,7 @@ BinaryParser::BinaryParser(string fileName){
 				break;
 			}//check for invalid opcode
 			string asm = decode(line, i, o);
-			i.setAssembly(asm);//TODO: write setAssembly method in instruction.cpp
+			i.setAssembly(asm);
 			myInstructions.push_back(i);
 		}
 	}
@@ -32,6 +32,18 @@ BinaryParser::BinaryParser(string fileName){
 	
 	}
 }
+
+	Instruction BinaryParser::getNextInstruction(){
+		if(myIndex < (int)(myInstructions.size())){
+    			myIndex++;
+    		return myInstructions[myIndex-1];
+		}
+
+		Instruction i;
+ 		return i;
+
+	}
+
 	bool BinaryParser::isValidBinaryEncoding(string s){
 		if(s.length() != stringLength){
 			return false;
@@ -114,7 +126,20 @@ BinaryParser::BinaryParser(string fileName){
 	  imm = imm/4;//shift the binary encoding to offset the target address 
 	  i.setValues(op, rs, rt, rd, imm);
 
-	  ss << i.getOpcode() << " "<< i.getImmediate();//get the J-type instruction
+	  ss << i.getOpcode() << " "<< hex <<i.getImmediate();//get the J-type instruction
 	  return ss.str();	
 	}
+
+	int BinaryParser::convertBinToDec(string s){
+	  int bin, dec = 0,rem, num, base = 1;
+	  isstringstream(s) >> bin;
+	  while (num > 0)
+    	 {
+            rem = num % 10;
+            dec = dec + rem * base;
+            base = base * 2;
+            num = num / 10;
+     	 }
 	
+	 return dec;
+	}	

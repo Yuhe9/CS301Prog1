@@ -12,34 +12,28 @@ using namespace std;
  */
 
 int main(int argc, char *argv[]){
-	BINParser *myBinParser;
+	BinaryParser *myBinParser;
 
 	if(argv < 2){
 		cerr << "Please specify a 32bit binary string file for translation." << endl;
 		exit(1);
 	}
 
-	myBinParser = new BINParser(argv[1]);
+	myBinParser = new BinaryParser(argv[3]);
 
 	if(myBinParser -> isFormatCorrect() == false){
 		cerr << "The input format is incorrect" << endl;
 		exit(1);
 	}
 	
-	String str;
 	Instruction i;
-	//TODO: figure out how to use instruction.cpp to iterate the file
-	str = myBinParser->getNextLine();
-	while(str != UNDEFIND){
-		cout << str;
-		cout <<i.getDecoding;
-		//
-
-
+	i = myBinParser->getNextInstruction();
+	while(i.getOpcode != UNDEFIND){
+		cout << i.getEncoding() <<"   " << i.getAssembly();
+		i = parser->getNextInstruction();
 
 	}
 	
 	delete myBinParser;
 
-	return 0;
-}
+
