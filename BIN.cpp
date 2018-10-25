@@ -1,4 +1,4 @@
-#include "BINParser.h"
+#include "BinaryParser.h"
 #include <iostream>
 
 using namespace std;
@@ -14,12 +14,12 @@ using namespace std;
 int main(int argc, char *argv[]){
 	BinaryParser *myBinParser;
 
-	if(argv < 2){
+	if(argc < 2){
 		cerr << "Please specify a 32bit binary string file for translation." << endl;
 		exit(1);
 	}
 
-	myBinParser = new BinaryParser(argv[3]);
+	myBinParser = new BinaryParser(argv[1]);
 
 	if(myBinParser -> isFormatCorrect() == false){
 		cerr << "The input format is incorrect" << endl;
@@ -28,12 +28,12 @@ int main(int argc, char *argv[]){
 	
 	Instruction i;
 	i = myBinParser->getNextInstruction();
-	while(i.getOpcode != UNDEFIND){
-		cout << i.getEncoding() <<"   " << i.getAssembly();
-		i = parser->getNextInstruction();
+	while(i.getOpcode() != UNDEFINED){
+		cout << i.getEncoding() << "   " << i.getAssembly() << endl;
+		i = myBinParser->getNextInstruction();
 
 	}
 	
 	delete myBinParser;
 
-
+}
