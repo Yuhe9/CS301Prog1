@@ -35,12 +35,11 @@ class BinaryParser{
 	vector<Instruction> myInstructions;
 	int myIndex;
 	bool myFormatCorrect;
-	bool isValidBinaryEncoding(string line);//check if the line is an valid binary string
+	bool isValidBinaryEncoding(string s);//check if the line is an valid binary string
 	RegisterTable registers;
 	OpcodeTable opcodes;
 	
-	Opcode getOpcode(string line);//get the opcode and funct field then pass them to opcodeTable
-	void decode(string line, Instruction i, Opcode op);//check if the opcode matches with any opcode in the opcodeTable, and determine which type the opcode stands for
+	void decode(string line, Instruction i, Opcode o);//check if the opcode matches with any opcode in the opcodeTable, and determine which type the opcode stands for
 	void decodeRType(Instruction i);
 	void decodeIType(Instruction i);
 	void decodeJType(Instruction i);
