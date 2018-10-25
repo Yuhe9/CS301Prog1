@@ -22,8 +22,7 @@ BinaryParser::BinaryParser(string fileName){
 				myformatCorrect = false;
 				break;
 			}//check for invalid opcode
-			decode(line, i, o);
-			String asm = createAssembly(i);
+			string asm = decode(line, i, o);
 			i.setAssembly(asm);//TODO: write setAssembly method in instruction.cpp
 			myInstructions.push_back(i);
 		}
@@ -46,24 +45,29 @@ BinaryParser::BinaryParser(string fileName){
 	}
 	
 
-	void BinaryParser::decode(string s, Instruction &i, Opcode o){
+	string BinaryParser::decode(string s, Instruction &i, Opcode o){
 	//Given a line of 32 bits binary string encoding of an instruction, and an Opcode, break and transfer the data fields into the Instruction instance dependon its instuction type.
+	string myInstruction;
 	InstType type = opcodes.getInstType(o);
 	if(type == RType)
-	  decodeRType(s, &i, o);
+	  myInstruction = decodeRType(s, &i, o);
 	else if(type == IType)
-	  decodeIType(s, &i, o);
+	  myInstruction = decodeIType(s, &i, o);
 	else
-	  decodeJType(s, &i, o);
+	  myInstruction = decodeJType(s, &i, o);
+	
+	return myInstruction;
+
 	}
 
-	void BinaryParser::decodeRType(string s, Instruction i, Opcode o){
+	string BinaryParser::decodeRType(string s, Instruction i, Opcode o){
 	  int rs, rt, rd, imm;
 	  int rsStartIndex = 6;
 	  int rtStartIndex = 11;
 	  int rdStartIndex = 16;
 	  int immStartIndex = 21;
 	  int immEndIndex = 25;
+	  stringstream ss;
 	  Opcode op = opcodes.getOpcodeField(o);
 	  String rsField = s.substring(rsStartIndex, rdStartIndex - 1);
 	  String rtField = s.substring(rtStartIndex, rdStartIndex - 1);
@@ -73,28 +77,35 @@ BinaryParser::BinaryParser(string fileName){
 	  rt = registers.getNum(rtField);
 	  rd = registers.getNum(rdField);
 	  imm = convertBinToDec(immediate); 
+	  
 	  i.setValues(op, rs, rt, rd, imm); 	
-
+	  
+	  ss << i.getOpcode() << ", $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRD();//get the instuc
+          return ss.str(); 
 	}
 
-	void BinaryParser::decodeIType(string s,Instruction i, Opcode o){
+	string BinaryParser::decodeIType(string s,Instruction i, Opcode o){
 	  int rs, rt, rd, imm;
 	  int rd = -1;
 	  int rsStartInd = 6;
 	  int rtStartInd = 11;
 	  int immStartInd = 16;
+	  stringstream ss;
 	  Opcode op = opcodes.getOpcodeField(o);
+	  
 	  String rsField = s.substring(rsStartIndex, rdStartIndex - 1);
 	  String rtField = s.substring(rtStartIndex, immStartIndex - 1);
 	  String immediate = s.substring(immStartIndex, stringLength - 1);	
 	  rs = registers.getNum(rsField);
 	  rt = registers.getNum(rtField);
 	  imm = convertBinToDec(immediate);
-	  i.setValues(op, rs, rt, rd, imm);
 	  
+	  i.setValues(op, rs, rt, rd, imm);
+	  ss << i.getOpcode() << ", $"<< i.getRT()<< ", " << i.getImmediate() << "(" << i.getRS() << ")";//put the I-type instruction into a string
+          return ss.str();
 	}
 
-	void BinaryParser::decodeJType(string s,Instruction i, Opcode o){
+	string BinaryParser::decodeJType(string s,Instruction i, Opcode o){
 	  int immStartInd = 6;
           int imm = rs = rt = rd = -1;
 	  Opcode op = opcodes.getOpcodeField(o);
@@ -103,26 +114,7 @@ BinaryParser::BinaryParser(string fileName){
 	  imm = imm/4;//shift the binary encoding to offset the target address 
 	  i.setValues(op, rs, rt, rd, imm);
 
+	  ss << i.getOpcode() << " "<< i.getImmediate();//get the J-type instruction
+	  return ss.str();	
 	}
 	
-	string BinaryParser::setAssembly(Instruction i){
-	  Opcode opcode = i.getOpcode();
-          InstType type = opcodes.getInstType(opcode);
-	  string myAssembly = "";
-
-	  if(type == RTYPE)
-	    myAssembly = setAssemblyRType(i);
-	  else if(type == ITYPE)
-	    myAssembly = setAssemblyIType(i);
-	  else
-	    myAssembly = setAssemblyJType(i);
-
-	  return myAssembly;	  
-	}
-
-	string BinaryParser::setAssemblyRType(Instruction i){
- 	stringstream ss; 
-	ss << i.getOpcode() << ", $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRD();//get the instuction name
-	return ss;
-	}
-
