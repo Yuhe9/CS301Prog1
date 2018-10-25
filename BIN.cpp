@@ -28,8 +28,8 @@ int main(int argc, char *argv[]){
 	
 	String str;
 	Instruction i;
-	//TODO: figure out how to use instruction.cpp to get the string
-	str = myBinParser->getNextString();
+	//TODO: figure out how to use instruction.cpp to iterate the file
+	str = myBinParser->getNextLine();
 	while(str != UNDEFIND){
 		cout << str;
 		cout <<i.getDecoding;
