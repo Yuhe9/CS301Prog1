@@ -34,6 +34,7 @@ class BinaryParser{
 	
 	vector<Instruction> myInstructions;
 	int myIndex;
+	int stringLength;
 	bool myFormatCorrect;
 	bool isValidBinaryEncoding(string s);//check if the line is an valid binary string
 	RegisterTable registers;
@@ -43,7 +44,7 @@ class BinaryParser{
 	void decodeRType(Instruction i);
 	void decodeIType(Instruction i);
 	void decodeJType(Instruction i);
-
+	int convertBinToDec(string s);
 	string createAssembly(Instruction i); 
 
 
