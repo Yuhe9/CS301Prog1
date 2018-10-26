@@ -1,177 +1,212 @@
 #include "BinaryParser.h"
 
 BinaryParser::BinaryParser(string fileName){
+// take in a file containing a single 32 bit binary string which is the encoding of an instruction.
+// checks for the format correctness and create a list of instructions
+	
 	Instruction i;
 	myFormatCorrect = true;
+
 	stringLength = 32;
-	regLength = 5;
+	regLength = 5;// length of rs, rt, and rd registers
 	imm = rs = rt = rd = -1;
-	immILength = 16;
-	immJLength = 26;
+	immILength = 16;// length of I-type immediate fields
+	immJLength = 26;// length of J-type immediate fields
 
 	ifstream in;
 	in.open(fileName.c_str());
 	if(in.bad()){
-		myFormatCorrect = false;
+	   myFormatCorrect = false;
 	}
 	else{
-		string line;
-		while(getline(in, line)){
+	   string line;
+	   while(getline(in, line)){
+	      if(isValidBinaryEncoding(line) == false){
+	      // check if the line only contain 32 bits characters of only 0 and 1s.
+	         myFormatCorrect = false;
+		 break;
+	      }
 
-			if(isValidBinaryEncoding(line) == false){
-				myFormatCorrect = false;
-				break;
-			}
-				
-			Opcode o = opcodes.determineOpcode(line);
-			if(o == UNDEFINED){
-				myFormatCorrect = false;
-				break;
-			}//check for invalid opcode
-			decode(line, i, o);
-			string assembly = createAssembly(line, i, o);
-			i.setEncoding(line);
-			i.setAssembly(assembly);
-			myInstructions.push_back(i);
-		}
+	      Opcode o = opcodes.determineOpcode(line);
+	      if(o == UNDEFINED){
+	      // specify invalid opcode
+	         myFormatCorrect = false;
+		 break;
+	      }
+		
+	      decode(line, i, o);
+	      string assembly = createAssembly(line, i, o);
+              i.setEncoding(line);
+	      i.setAssembly(assembly);
+	      
+	      myInstructions.push_back(i);
+	   }
 	}
+
 	myIndex = 0;
 }
 
 
 	Instruction BinaryParser::getNextInstruction(){
-		if(myIndex < (int)(myInstructions.size())){
-    			myIndex++;
-    		return myInstructions[myIndex-1];
-		}
+	// Iterator that returns the next Instruction in the list of Instructions
+	   if(myIndex < (int)(myInstructions.size())){
+    	      myIndex++;
+    	      return myInstructions[myIndex-1];
+	   }
 
-		Instruction i;
- 		return i;
+	   Instruction i;
+           return i;
 
 	}
 
 	bool BinaryParser::isValidBinaryEncoding(string s){
-		if(s.length() != stringLength){
-		// check if the string has 32 bits
-			return false;
-		}
+	// given the line of strings, check if it is valid
+	   if(s.length() != stringLength){
+	   // check if the string has 32 bits
+	      return false;
+	   }
 
-		if(s.find_first_of("01") == string::npos){
-		// check if the string contain any other character than 0 and 1	
-			return false;
-		}
+	   if(s.find_first_of("01") == string::npos){
+ 	   // check if the string contain any other character than 0 and 1	
+	      return false;
+	   }
 
-		return true;
+	   return true;
 	}
 	
 
 	void BinaryParser::decode(string s, Instruction &i, Opcode o){
-	//Given a line of 32 bits binary string encoding of an instruction, and an Opcode, break and transfer the data fields into the Instruction instance dependon its instuction type.
-	InstType type = opcodes.getInstType(o);
-	if(type == RTYPE)
-	  decodeRType(s, i, o);
-	else if(type == ITYPE)
-	  decodeIType(s, i, o);
-	else
-	  decodeJType(s, i, o);
-	
+	// given a line of 32 bits binary string encoding of an instruction, the instruction, and the Opcode, 
+	// break and store the data fields into the Instruction instance depends on its instuction type.
+	   InstType type = opcodes.getInstType(o);
+	   
+	   if(type == RTYPE)
+	     decodeRType(s, i, o);
+	   else if(type == ITYPE)
+	     decodeIType(s, i, o);
+	   else
+	     decodeJType(s, i, o);
 
 	}
 
 	string BinaryParser::createAssembly(string s, Instruction i, Opcode o){	
-	  string myInstruction;
-	  InstType type = opcodes.getInstType(o);
-          if(type == RTYPE) 
-	    myInstruction = createRTypeAssembly(s, i, o);
-	  else if (type == ITYPE)
-	    myInstruction = createITypeAssembly(s, i, o);
-	  else
-	    myInstruction = createJTypeAssembly(s, i, o);
+	// given a line of 32 bits binary string encoding of an instruction, the instruction, and Opcode,
+	// return the corresponding assembly version of an instruction
+	   string myInstruction;
+	   InstType type = opcodes.getInstType(o);
+           
+	   if(type == RTYPE) 
+	      myInstruction = createRTypeAssembly(s, i, o);
+	   else if (type == ITYPE)
+	      myInstruction = createITypeAssembly(s, i, o);
+	   else
+	      myInstruction = createJTypeAssembly(s, i, o);
 
-	  return myInstruction;
+	    return myInstruction;
 	}
 
 	void BinaryParser::decodeRType(string s, Instruction &i, Opcode o){
-	  Opcode op = opcodes.determineOpcode(s);
-	  string rsField = s.substr(regLength + 1, regLength);
-	  string rtField = s.substr(2*regLength + 1, regLength);
- 	  string rdField = s.substr(3*regLength + 1, regLength );
-	  string immediate = s.substr(4*regLength + 1, regLength);
-	
-	  rs = convertBinToDec(rsField);
-	  rt = convertBinToDec(rtField);
-	  rd = convertBinToDec(rdField);
-	  imm = convertBinToDec(immediate); 
+	// given a line of 32 bits binary string encoding of an R-type instruction, the instruction, 
+	// and Opcode, break and store the data fields into the Instruction instance  
+	   string rsField = s.substr(regLength + 1, regLength);//rs field start at the index of 6 in the string
+	   string rtField = s.substr(2*regLength + 1, regLength);//rf field start at the index of 11 in the string
+
+ 	   string rdField = s.substr(3*regLength + 1, regLength );//rd field start at the index of 16 in the string
+
+	   string immediate = s.substr(4*regLength + 1, regLength);//immediate field start at the index of 21 in the string
+	   
+	   //convert the string representing rs,rt, rd, and imm field to decimal integer
+	   rs = convertBinToDec(rsField);
+	   rt = convertBinToDec(rtField);
+	   rd = convertBinToDec(rdField);
+	   imm = convertBinToDec(immediate); 
 	 
-	  i.setValues(op, rs, rt, rd, imm); 	
+	   i.setValues(o, rs, rt, rd, imm); 	
 	  
 	}
 
 	void BinaryParser::decodeIType(string s,Instruction &i, Opcode o){
-	  
-	  Opcode op = opcodes.determineOpcode(s);
-	  string rsField = s.substr(regLength + 1, regLength);
-	  string rtField = s.substr(2*regLength + 1, regLength);
-	  string immediate = s.substr(3*regLength + 1, immILength);	
+	// given a line of 32 bits binary string encoding of an I-type instruction, the instruction, a
+	// nd Opcode, break and store the data fields into the Instruction instance
+	   
+  	   // get the string representing rs,rt, rd, and imm fields in the string
+	   string rsField = s.substr(regLength + 1, regLength);
+	   string rtField = s.substr(2*regLength + 1, regLength);
+	   string immediate = s.substr(3*regLength + 1, immILength);	
  	  
-	  rs = convertBinToDec(rsField);
-	  rt = convertBinToDec(rtField);
-	  immediate = extendBits(immediate);
-	  imm = twoCompBinToDec(immediate);
+	   //convert the string representing rs,rt, rd, and imm field to decimal integer
+	   rs = convertBinToDec(rsField);
+	   rt = convertBinToDec(rtField);
+	   // extend the 16 bits immediate to 32 bits and encoded to decimal integer in two’s complement
+	   immediate = extendBits(immediate);
+	   imm = twoCompBinToDec(immediate);
 	 
-	  i.setValues(op, rs, rt, rd, imm);
+	   i.setValues(o, rs, rt, rd, imm);
 
 	}
 
 	void BinaryParser::decodeJType(string s,Instruction &i, Opcode o){
-	 
-	  Opcode op = opcodes.determineOpcode(s);
-	  string immediate = s.substr(regLength + 1, immJLength);
-	  imm = convertBinToDec(immediate);
-	  imm = imm * 4; //offset to get the target address 
+	// given a line of 32 bits binary string encoding of an J-type instruction, the instruction, a 
+	// nd Opcode, break and store the data fields into the Instruction instance 
 	
-	  i.setValues(op, rs, rt, rd, imm);
+	   // get the string representing rs,rt, rd, and imm fields in the string
+	   string immediate = s.substr(regLength + 1, immJLength);
+	   imm = convertBinToDec(immediate);
+	   imm = imm * 4; //offset to get the target label address 
+	
+	   i.setValues(o, rs, rt, rd, imm);
 	}
 
 	string BinaryParser::createRTypeAssembly(string s, Instruction i, Opcode o){
-	  stringstream ss;
-	  string name = opcodes.getName(o);
-	  ss << name;
+	// given a line of 32 bits binary string encoding of an R-typeinstruction, the instruction, and Opcode
+	// return the corresponding assembly version of the instruction
+	  
+	   stringstream ss;
+	   string name = opcodes.getName(o);
+	   ss << name;
 	
-	  if(i.getRD() != 0)
-	    ss << "	$"<< i.getRD();
-	    
-            if(i.getRS() != 0 && i.getRD() != 0)
+	   if(i.getRD() != 0)
+	      ss << "	$"<< i.getRD();
+	   
+	   // determine if to have the comma before the rs field 
+           if(i.getRS() != 0 && i.getRD() != 0)
 	      ss << ", $" << i.getRS();
- 	    else if(i.getRS() != 0 && i.getRD() == 0)
+ 	   else if(i.getRS() != 0 && i.getRD() == 0)
 	      ss << "	$" << i.getRS();
 
-	    if(i.getRT() != 0)
+	   if(i.getRT() != 0)
 	      ss << ", $" << i.getRT();
 
-	    if(i.getImmediate() != 0)
+	   // if the instruction has an immediate field
+	   if(i.getImmediate() != 0)
               ss << ", " << i.getImmediate();
-          return ss.str();
+           
+	   return ss.str();
 
 	} 
 	
 
 	string BinaryParser::createITypeAssembly(string s, Instruction i, Opcode o){
-	  stringstream ss;
-          string name = opcodes.getName(o);
-	  ss << name;
+	// given a line of 32 bits binary string encoding of an I-typeinstruction, the instruction, and Opcode	      // return the corresponding assembly version of an instruction
+	  
+	   stringstream ss;
+           string name = opcodes.getName(o);
+	   ss << name;
 
-	  if(name == "lb")	
-	    ss << "	$"<< i.getRT() <<", "<< i.getImmediate() << "($"<< i.getRS() << ")";//get the string of lb instuction
-	  else if (name == "beq"){
-	    ss << "	$" << i.getRS() << ", $"<< i.getRT() <<", 0x";
-	    if(i.getRS() == i.getRT())
-	      ss << hex << i.getImmediate()*2;
-	    else
-	      ss << hex << i.getImmediate()*4;
-	  }
-	  else
-	   ss <<"	$"<< i.getRT()<< ", $" << i.getRS() << ", " << i.getImmediate();
+	   // check if the instruction is lb or beq, the two special cases
+	   if(name == "lb")	
+	      ss << "	$"<< i.getRT() <<", "<< i.getImmediate() << "($"<< i.getRS() << ")";//get the string of lb instuction
+	   else if (name == "beq"){
+	      ss << "	$" << i.getRS() << ", $"<< i.getRT() <<", 0x";
+
+	      // check if rs field equals to rt field and make offset corresepondly
+	      if(i.getRS() == i.getRT())
+	         ss << hex << i.getImmediate()*2;//get the immediate, which is an address, in hex base
+	      else
+	         ss << hex << i.getImmediate()*4;
+
+	   }else
+	      ss <<"	$"<< i.getRT()<< ", $" << i.getRS() << ", " << i.getImmediate();
  
           return ss.str();
 
@@ -179,55 +214,72 @@ BinaryParser::BinaryParser(string fileName){
 
 
 	string BinaryParser::createJTypeAssembly(string s, Instruction i, Opcode o){
-	  stringstream ss;
-          string name = opcodes.getName(o);
+	// given a line of 32 bits binary string encoding of an I-typeinstruction, the instruction, and Opcode
+	// return the corresponding assembly version of an instruction
+	   
+	   stringstream ss;
+           string name = opcodes.getName(o);
  	 
-	  ss << name << "	" << "0x" << hex << i.getImmediate(); //get the J-type assembly instruction
-          return ss.str();
+	   ss << name << "	" << "0x" << hex << i.getImmediate(); //get the J-type assembly instruction
+          
+ 	   return ss.str();
 
 	}
-
 
 
 	int BinaryParser::convertBinToDec(string s){
-	  int val = 0;
-	  int indexCounter = 0;
-	  for(int i = s.length()-1;i>=0;i--){
-	    if(s[i]=='1'){
-       	       val += pow(2, indexCounter);
-    	    }
-    	    indexCounter++;
-	  }
-	  return val;
+	// given an string representing a data field, return the correseponding decimal integer
+	   
+	   int val = 0;
+	   int indexCounter = 0;
+
+	   // convert the binary string using the formula
+	   for(int i = s.length()-1;i>=0;i--){
+	       if(s[i]=='1'){
+       	          val += pow(2, indexCounter);
+    	       }
+    	       indexCounter++;
+	   }
+
+	   return val;
 	}	
 
  	string BinaryParser::extendBits(string s){
-	  string str;
-	  string ones = "1111111111111111";
-	  string zeros = "0000000000000000";
-	  if(s[0] == '1')
-	  str.append(ones);
-	  else
-	  str.append(zeros);
-
-	  str.append(s);
+	// given a string of 16 bits, extend it to 32 bits using two’s complement by adding 1 before negative
+	// or 0 before positive
 	
-	  return str;
+	   string str;
+	   string ones = "1111111111111111";
+	   string zeros = "0000000000000000";
+	  
+	   if(s[0] == '1')
+	      str.append(ones);
+	   else
+	     str.append(zeros);
+
+	   str.append(s);//append the origin string
+	
+	   return str;
 	}
 
 	int BinaryParser::twoCompBinToDec(string s){
-          int val = 0;
-          int indexCounter = 0;
-	  if(s[0] == '1')
-	    val = pow(-2, 31);
+	// given a binary string in two’s complement, return its decimal value
+          
+	   int val = 0;
+           int indexCounter = 0;
 	  
-          for(int i = s.length() - 1;i>0;i--){
-            if(s[i]=='1'){
-               val += pow(2, indexCounter);
-            }
-            indexCounter++;
+	   // check the sign bit
+	   if(s[0] == '1')
+	      val = pow(-2, 31);
+
+	   // convert the string using two’s complement formula
+           for(int i = s.length() - 1;i>0;i--){
+              if(s[i]=='1'){
+                 val += pow(2, indexCounter);
+              }
+              indexCounter++;
           }
 
-          return val;
+           return val;
         }
 
