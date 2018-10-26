@@ -38,7 +38,7 @@ class BinaryParser{
 	int myIndex; // iterator index
 	int imm, rs, rt, rd, immILength, immJLength;//registers and length of data fields
 	int regLength; // length of rs, rt, rd and R-type immediate registers
-        int stringLength; //length of the string
+        unsigned int stringLength; //length of the string
  
 	bool myFormatCorrect;
 	bool isValidBinaryEncoding(string s);//check if the line is an valid binary string

@@ -134,19 +134,20 @@ Opcode OpcodeTable::getOpcode(string str)
 Opcode OpcodeTable::determineOpcode(string str){
 // Given a 32-bits binary string encoding of an instruction, returns an Opcode
 // which reprsents a template for that instruction.
-  int startInd = 0;
-  int regLength = 6;
-  int funcStartInd = 26;
-  string opField = str.substr(startInd, regLength);
-  string funcField = str.substr(funcStartInd, regLength);
+  
+  string opField = str.substr(0, regLength);
+  string funcField = str.substr(4*regLength + 2, regLength);
+  
   for(int i = 0; i < (int)UNDEFINED; i++){
     if(myArray[i].op_field == opField && opField != "000000"){
-     	return (Opcode)i;
+      return (Opcode)i;
+
      } else if (myArray[i].op_field == opField && myArray[i].funct_field == funcField){
         return (Opcode)i;
-     }
-  }
+       }
+    }
   return UNDEFINED;
+
 }
 
 string OpcodeTable::getName(Opcode o){
@@ -154,9 +155,6 @@ string OpcodeTable::getName(Opcode o){
   string name = myArray[o].name;
   return name;
 }
-
-
-
 
 
 int OpcodeTable::numOperands(Opcode o)

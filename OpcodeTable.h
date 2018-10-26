@@ -90,6 +90,9 @@ class OpcodeTable {
   // Provides information about how where to find values in a MIPS assembly
   // instruction and what pre-defined fields (opcode/funct) will be in
   // the encoding for the given instruction.
+
+  static const int regLength = 6;//length of the register
+	
   struct OpcodeTableEntry{
     string name;
     int numOps;

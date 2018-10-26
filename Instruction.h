@@ -53,8 +53,12 @@ class Instruction{
   // Returns string representing the 32 binary encoding of MIPS instruction
   string getEncoding() { return myEncoding; };
   
+  // Stores string of the assembly representation of MIPS instruction
   void setAssembly(string s){ myAssembly = s; };
+
+  // Returns string of the assembly representation of MIPS instruction
   string getAssembly(){return myAssembly; };
+
  private:
   Opcode myOpcode;
   Register myRS;
