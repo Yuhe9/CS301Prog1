@@ -5,7 +5,8 @@
 #include "RegisterTable.h"
 #include <sstream>
 
-/* This class provides an internal representation for a MIPS assembly instruction.
+/* Sherry Yuhe Zhu
+ * This class provides an internal representation for a MIPS assembly instruction.
  * Any of the fields can be queried.  Additionally, the class stores a 32 bit binary
  * encoding of the MIPS instruction.
  */

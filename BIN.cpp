@@ -3,7 +3,8 @@
 
 using namespace std;
 
-/* This .cpp file reads in a file that parse as a command line argument.
+/* Sherry Yuhe Zhu
+ * This .cpp file reads in a file that parse as a command line argument.
  * If every line of the file contains a 32 bit binary string that correctly
  * represent an encoding of a string, each line would be decoded. Then the 
  * 32 bit binary string and the translated MIPS assembly instruction are printed

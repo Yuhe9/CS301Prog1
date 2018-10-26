@@ -1,5 +1,6 @@
 #include "BinaryParser.h"
 
+// Sherry Yuhe Zhu
 BinaryParser::BinaryParser(string fileName){
 // take in a file containing a single 32 bit binary string which is the encoding of an instruction.
 // checks for the format correctness and create a list of instructions
@@ -12,7 +13,7 @@ BinaryParser::BinaryParser(string fileName){
 	imm = rs = rt = rd = -1;
 	immILength = 16;// length of I-type immediate fields
 	immJLength = 26;// length of J-type immediate fields
-
+	
 	ifstream in;
 	in.open(fileName.c_str());
 	if(in.bad()){
@@ -26,17 +27,20 @@ BinaryParser::BinaryParser(string fileName){
 	         myFormatCorrect = false;
 		 break;
 	      }
-
+	      
+	      //determine what is the opcode given the string of binary encoding of the instruction
 	      Opcode o = opcodes.determineOpcode(line);
 	      if(o == UNDEFINED){
 	      // specify invalid opcode
 	         myFormatCorrect = false;
 		 break;
 	      }
-		
+	     
+	      // set the data fields of the binary string encodings into the instruction	
 	      decode(line, i, o);
 	      string assembly = createAssembly(line, i, o);
-              i.setEncoding(line);
+              
+	      i.setEncoding(line);
 	      i.setAssembly(assembly);
 	      
 	      myInstructions.push_back(i);
@@ -165,21 +169,16 @@ BinaryParser::BinaryParser(string fileName){
 	   string name = opcodes.getName(o);
 	   ss << name;
 	
-	   if(i.getRD() != 0)
-	      ss << "	$"<< i.getRD();
-	   
-	   // determine if to have the comma before the rs field 
-           if(i.getRS() != 0 && i.getRD() != 0)
-	      ss << ", $" << i.getRS();
- 	   else if(i.getRS() != 0 && i.getRD() == 0)
-	      ss << "	$" << i.getRS();
+	   // check how many registers the instruction has and make the corresponding assembly representation
+	   if(opcodes.numOperands(o) == 1)// if it is mflo
+	      ss <<"	$" << i.getRD();
+	   else if (opcodes.numOperands(o) == 2)// if it is mult
+	      ss << "	$" << i.getRS() << ", $" << i.getRT();
+	   else if (opcodes.IMMposition(o) != -1) // if it is sll
+	      ss << "	$" << i.getRD() << ", $" << i.getRT() << ", " << i.getImmediate();
+	   else	// for other R-type instructions
+	      ss << "	$" << i.getRD() << ", $" << i.getRS() << ", $" << i.getRT(); 
 
-	   if(i.getRT() != 0)
-	      ss << ", $" << i.getRT();
-
-	   // if the instruction has an immediate field
-	   if(i.getImmediate() != 0)
-              ss << ", " << i.getImmediate();
            
 	   return ss.str();
 
@@ -191,22 +190,23 @@ BinaryParser::BinaryParser(string fileName){
 	  
 	   stringstream ss;
            string name = opcodes.getName(o);
-	   ss << name;
+	   ss << name;	
 
-	   // check if the instruction is lb or beq, the two special cases
-	   if(name == "lb")	
-	      ss << "	$"<< i.getRT() <<", "<< i.getImmediate() << "($"<< i.getRS() << ")";//get the string of lb instuction
-	   else if (name == "beq"){
-	      ss << "	$" << i.getRS() << ", $"<< i.getRT() <<", 0x";
+	   // check if the instruction is lb or beq, constructe the corresponding assembly representation for the two special cases
+	   if(opcodes.IMMposition(o) == 1)// check if it is lb	
+	      ss << "	$" << i.getRT() <<", "<< i.getImmediate() << "($"<< i.getRS() << ")";//get the string of lb instuction
+	   else if (opcodes.RSposition(o) == 0){// check if it is beq 
+	      ss << "	$" << i.getRS() << ", $" << i.getRT() << ", 0x";
 
-	      // check if rs field equals to rt field and make offset corresepondly
+	      // check if rs field equals to rt field to make the offset corresepondly
 	      if(i.getRS() == i.getRT())
-	         ss << hex << i.getImmediate()*2;//get the immediate, which is an address, in hex base
+	         ss << hex << i.getImmediate()*2; //get the immediate, which is an address, in hex base
 	      else
 	         ss << hex << i.getImmediate()*4;
 
 	   }else
-	      ss <<"	$"<< i.getRT()<< ", $" << i.getRS() << ", " << i.getImmediate();
+
+	      ss <<"	$" << i.getRT()<< ", $" << i.getRS() << ", " << i.getImmediate();
  
           return ss.str();
 
@@ -235,7 +235,7 @@ BinaryParser::BinaryParser(string fileName){
 
 	   // convert the binary string using the formula
 	   for(int i = s.length()-1;i>=0;i--){
-	       if(s[i]=='1'){
+	       if(s[i]=='1'){ // if the binary string has a 1 at the position then add 2 to the power of its index
        	          val += pow(2, indexCounter);
     	       }
     	       indexCounter++;
@@ -249,12 +249,12 @@ BinaryParser::BinaryParser(string fileName){
 	// or 0 before positive
 	
 	   string str;
-	   string ones = "1111111111111111";
-	   string zeros = "0000000000000000";
+	   string ones = "1111111111111111";// string of 16 1s that will be added before the binary string in two's complement
+	   string zeros = "0000000000000000";//string of 16 0s that will be added before the binary string in two's complement
 	  
-	   if(s[0] == '1')
+	   if(s[0] == '1')//the sign bit is 1 suggesting the binary string represents a negative number
 	      str.append(ones);
-	   else
+	   else // the binary string represents a positive number
 	     str.append(zeros);
 
 	   str.append(s);//append the origin string

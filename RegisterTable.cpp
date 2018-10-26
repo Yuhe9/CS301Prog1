@@ -1,5 +1,6 @@
 #include "RegisterTable.h"
 
+// Sherry Yuhe Zhu
 RegisterTable::RegisterTable()
 // Constructs and initializes the valid register names and numbers
 {

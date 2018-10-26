@@ -1,7 +1,7 @@
 #include "Instruction.h"
 
 
-
+// Sherry Yuhe Zhu
 Instruction::Instruction()
 // Creates a default instruction that has the opcode UNDEFINED
 {

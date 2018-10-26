@@ -2,7 +2,7 @@
 #define _REGISTERTABLE_H
 
 #include <string>
-
+// Sherry Yuhe Zhu
 using namespace std;
 
 

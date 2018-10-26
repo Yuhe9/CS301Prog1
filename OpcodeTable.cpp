@@ -1,5 +1,6 @@
 #include "OpcodeTable.h"
 
+// Sherry Yuhe Zhu
 OpcodeTable::OpcodeTable()
 // Initializes all the fields for every instruction in Opcode enum
 {

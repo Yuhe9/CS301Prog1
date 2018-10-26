@@ -6,7 +6,7 @@ using namespace std;
 #include <iostream>
 #include <string>
 
-
+// Sherry Yuhe Zhu
 // Listing of all supported MIPS instructions
 enum Opcode {
   ADD, 

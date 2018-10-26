@@ -15,7 +15,8 @@ using namespace std;
 #include <sstream>
 #include <stdlib.h>
 
-/* This file reads in a binary string encoding of a MIPS instruction. First it will check the syntax,
+/* Sherry Yuhe Zhu
+ * This file reads in a binary string encoding of a MIPS instruction. First it will check the syntax,
  * if the syntax is correct, it will create an insruction for each line of the file. It will iterate the file and read in every line.
  */
 
@@ -39,7 +40,7 @@ class BinaryParser{
 	int imm, rs, rt, rd, immILength, immJLength;//registers and length of data fields
 	int regLength; // length of rs, rt, rd and R-type immediate registers
         unsigned int stringLength; //length of the string
- 
+	
 	bool myFormatCorrect;
 	bool isValidBinaryEncoding(string s);//check if the line is an valid binary string
 		
