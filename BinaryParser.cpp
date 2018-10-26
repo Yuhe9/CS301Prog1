@@ -4,6 +4,11 @@ BinaryParser::BinaryParser(string fileName){
 	Instruction i;
 	myFormatCorrect = true;
 	stringLength = 32;
+	regLength = 5;
+	imm = rs = rt = rd = -1;
+	immILength = 16;
+	immJLength = 26;
+
 	ifstream in;
 	in.open(fileName.c_str());
 	if(in.bad()){
@@ -25,6 +30,7 @@ BinaryParser::BinaryParser(string fileName){
 			}//check for invalid opcode
 			decode(line, i, o);
 			string assembly = createAssembly(line, i, o);
+			i.setEncoding(line);
 			i.setAssembly(assembly);
 			myInstructions.push_back(i);
 		}
@@ -86,17 +92,11 @@ BinaryParser::BinaryParser(string fileName){
 	}
 
 	void BinaryParser::decodeRType(string s, Instruction &i, Opcode o){
-	  int rs, rt, rd, imm;
-	  int rsStartIndex = 6;
-	  int rtStartIndex = 11;
-	  int rdStartIndex = 16;
-	  int regLength = 5;
-	  int immStartIndex = 21;
 	  Opcode op = opcodes.determineOpcode(s);
-	  string rsField = s.substr(rsStartIndex, regLength);
-	  string rtField = s.substr(rtStartIndex, regLength);
- 	  string rdField = s.substr(rdStartIndex, regLength );
-	  string immediate = s.substr(immStartIndex, regLength);
+	  string rsField = s.substr(regLength + 1, regLength);
+	  string rtField = s.substr(2*regLength + 1, regLength);
+ 	  string rdField = s.substr(3*regLength + 1, regLength );
+	  string immediate = s.substr(4*regLength + 1, regLength);
 	
 	  rs = convertBinToDec(rsField);
 	  rt = convertBinToDec(rtField);
@@ -108,47 +108,49 @@ BinaryParser::BinaryParser(string fileName){
 	}
 
 	void BinaryParser::decodeIType(string s,Instruction &i, Opcode o){
-	  int rs, rt, rd, imm =  -1;
-	  rd = -1;
-	  int rsStartIndex = 6 ;
-	  int rtStartIndex = 11;
-	  int immStartIndex = 16;
-	  int regLength = 5;
-	  int immLength = 16;
-	  Opcode op = opcodes.determineOpcode(s);
-
-	  string rsField = s.substr(rsStartIndex, regLength);
-	  string rtField = s.substr(rtStartIndex, regLength);
-	  string immediate = s.substr(immStartIndex, immLength);	
 	  
- 	  rs = convertBinToDec(rsField);
+	  Opcode op = opcodes.determineOpcode(s);
+	  string rsField = s.substr(regLength + 1, regLength);
+	  string rtField = s.substr(2*regLength + 1, regLength);
+	  string immediate = s.substr(3*regLength + 1, immILength);	
+ 	  
+	  rs = convertBinToDec(rsField);
 	  rt = convertBinToDec(rtField);
 	  immediate = extendBits(immediate);
 	  imm = twoCompBinToDec(immediate);
 	 
 	  i.setValues(op, rs, rt, rd, imm);
 
-	 // ss << name << "	$"<< i.getRT()<< ", $" << i.getRS() << ", " << i.getImmediate();//put the I-type instruction into a string
-         // return ss.str();
 	}
 
 	void BinaryParser::decodeJType(string s,Instruction &i, Opcode o){
-	  int immStartInd = 6;
-	  int immLength = 26;
-          int imm,rs,rt,rd;
-	  rs = rt = rd = -1;
 	 
 	  Opcode op = opcodes.determineOpcode(s);
-	  string immediate = s.substr(6, immLength);
+	  string immediate = s.substr(regLength + 1, immJLength);
 	  imm = convertBinToDec(immediate);
 	  imm = imm * 4; //offset to get the target address 
+	
 	  i.setValues(op, rs, rt, rd, imm);
 	}
 
 	string BinaryParser::createRTypeAssembly(string s, Instruction i, Opcode o){
 	  stringstream ss;
 	  string name = opcodes.getName(o);
-	  ss << name  << "      $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRT();//get the instuc
+	  ss << name;
+	
+	  if(i.getRD() != 0)
+	    ss << "	$"<< i.getRD();
+	    
+            if(i.getRS() != 0 && i.getRD() != 0)
+	      ss << ", $" << i.getRS();
+ 	    else if(i.getRS() != 0 && i.getRD() == 0)
+	      ss << "	$" << i.getRS();
+
+	    if(i.getRT() != 0)
+	      ss << ", $" << i.getRT();
+
+	    if(i.getImmediate() != 0)
+              ss << ", " << i.getImmediate();
           return ss.str();
 
 	} 
@@ -157,8 +159,20 @@ BinaryParser::BinaryParser(string fileName){
 	string BinaryParser::createITypeAssembly(string s, Instruction i, Opcode o){
 	  stringstream ss;
           string name = opcodes.getName(o);
-	
-	  ss << name  << "      $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRT();//get the instuc
+	  ss << name;
+
+	  if(name == "lb")	
+	    ss << "	$"<< i.getRT() <<", "<< i.getImmediate() << "($"<< i.getRS() << ")";//get the string of lb instuction
+	  else if (name == "beq"){
+	    ss << "	$" << i.getRS() << ", $"<< i.getRT() <<", 0x";
+	    if(i.getRS() == i.getRT())
+	      ss << hex << i.getImmediate()*2;
+	    else
+	      ss << hex << i.getImmediate()*4;
+	  }
+	  else
+	   ss <<"	$"<< i.getRT()<< ", $" << i.getRS() << ", " << i.getImmediate();
+ 
           return ss.str();
 
 	}
@@ -168,7 +182,7 @@ BinaryParser::BinaryParser(string fileName){
 	  stringstream ss;
           string name = opcodes.getName(o);
  	 
-	  ss << name << "       " << "Ox" << hex << i.getImmediate(); //get the J-type assembly instruction
+	  ss << name << "	" << "0x" << hex << i.getImmediate(); //get the J-type assembly instruction
           return ss.str();
 
 	}

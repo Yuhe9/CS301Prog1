@@ -34,7 +34,10 @@ class BinaryParser{
 	
 	vector<Instruction> myInstructions;
 	int myIndex;
-	int stringLength;
+	int imm, rs, rt, rd, immILength, immJLength;
+	int regLength;
+        int stringLength; 
+ 
 	bool myFormatCorrect;
 	bool isValidBinaryEncoding(string s);//check if the line is an valid binary string
 		
@@ -42,7 +45,7 @@ class BinaryParser{
 	OpcodeTable opcodes;
 	
 	
-	istringstream sa;
+//	istringstream sa;
 
 	void decode(string s, Instruction &i, Opcode o);//check if the opcode matches with any opcode in the opcodeTable, and determine which type the opcode stands for
 	void decodeRType(string s, Instruction &i, Opcode o);

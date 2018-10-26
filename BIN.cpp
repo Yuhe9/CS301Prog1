@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
 	Instruction i;
 	i = myBinParser->getNextInstruction();
 	while(i.getOpcode() != UNDEFINED){
-		cout << i.getEncoding() << "   " << i.getAssembly() << endl;
+		cout << i.getEncoding() << "	" << i.getAssembly() << endl;
 		i = myBinParser->getNextInstruction();
 
 	}
