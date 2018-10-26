@@ -43,10 +43,13 @@ class OpcodeTable {
   // Given a valid MIPS assembly mnemonic, returns an Opcode which represents a 
   // template for that instruction.
   Opcode getOpcode(string str);
-  
+
   // Given a 32-bits binary string encoding of an instruction, returns an Opcode
   // which reprsents a template for that instruction.
   Opcode determineOpcode(string str);
+ 
+  // Give an Opcode, returns the string of the instruction's name
+  string getName(Opcode o);
 
   // Given an Opcode, returns number of expected operands.
   int numOperands(Opcode o);

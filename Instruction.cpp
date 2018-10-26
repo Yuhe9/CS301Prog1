@@ -55,5 +55,4 @@ string Instruction::getString()
     "Imm: " << myImmediate;
   
   return s.str();
-  
 }

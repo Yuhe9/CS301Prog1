@@ -19,13 +19,12 @@ BinaryParser::BinaryParser(string fileName){
 			}
 				
 			Opcode o = opcodes.determineOpcode(line);
-
 			if(o == UNDEFINED){
 				myFormatCorrect = false;
 				break;
 			}//check for invalid opcode
-
 			string assembly = decode(line, i, o);
+			cout << assembly << endl;
 			i.setAssembly(assembly);
 			myInstructions.push_back(i);
 		}
@@ -47,10 +46,12 @@ BinaryParser::BinaryParser(string fileName){
 
 	bool BinaryParser::isValidBinaryEncoding(string s){
 		if(s.length() != stringLength){
+		// check if the string has 32 bits
 			return false;
 		}
 
-		if(s.find_first_of("01")!= string::npos){	
+		if(s.find_first_of("01") == string::npos){
+		// check if the string contain any other character than 0 and 1	
 			return false;
 		}
 
@@ -89,7 +90,8 @@ BinaryParser::BinaryParser(string fileName){
 	  string immediate = s.substr(immStartIndex, regLength);
 	  istringstream sa(immediate);
 	  sa >> imm;
-	
+	  string name = opcodes.getName(op);
+
 	  rs = registers.getNum(rsField);
 	  rt = registers.getNum(rtField);
 	  rd = registers.getNum(rdField);
@@ -97,7 +99,7 @@ BinaryParser::BinaryParser(string fileName){
 	  
 	  i.setValues(op, rs, rt, rd, imm); 	
 	  
-	  ss << i.getOpcode() << ", $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRD();//get the instuc
+	  ss << name  << ", $"<< i.getRD()<< ", $" << i.getRS() << ", $" << i.getRD();//get the instuc
           return ss.str(); 
 	}
 
@@ -110,7 +112,8 @@ BinaryParser::BinaryParser(string fileName){
 	  int immLength = 16;
 	  stringstream ss;
 	  Opcode op = opcodes.determineOpcode(s);
-	  
+	  string name = opcodes.getName(op);
+
 	  string rsField = s.substr(rsStartIndex, regLength);
 	  string rtField = s.substr(rtStartIndex, regLength);
 	  string immediate = s.substr(immStartIndex, immLength);	
@@ -122,7 +125,7 @@ BinaryParser::BinaryParser(string fileName){
 	  imm = convertBinToDec(imm);
 	  
 	  i.setValues(op, rs, rt, rd, imm);
-	  ss << i.getOpcode() << ", $"<< i.getRT()<< ", " << i.getImmediate() << "(" << i.getRS() << ")";//put the I-type instruction into a string
+	  ss << name << ", $"<< i.getRT()<< ", " << i.getImmediate() << "(" << i.getRS() << ")";//put the I-type instruction into a string
           return ss.str();
 	}
 
@@ -132,7 +135,7 @@ BinaryParser::BinaryParser(string fileName){
           int imm,rs,rt,rd = -1;
 	  stringstream ss;
 	  Opcode op = opcodes.determineOpcode(s);
-	  
+	  string name = opcodes.getName(op);	  
 	  string immediate = s.substr(6, immLength);
 	  istringstream sa(immediate);
           sa >> imm;
@@ -140,7 +143,7 @@ BinaryParser::BinaryParser(string fileName){
 	  imm = convertBinToDec(imm);
 	  i.setValues(op, rs, rt, rd, imm);
 
-	  ss << i.getOpcode() << " "<< hex <<i.getImmediate();//get the J-type instruction
+	  ss << name << " "<< hex <<i.getImmediate();//get the J-type instruction
 	  return ss.str();	
 	}
 
